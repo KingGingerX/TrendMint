@@ -36,13 +36,28 @@ export function getDb(): Database {
  */
 function runMigrations(db: Database): void {
   // Migration 1: Add rejection_reason column (added with Amazon PAAPI module)
-  const columns = db
+  const productColumns = db
     .query("PRAGMA table_info(products)")
     .all() as { name: string }[];
-  const hasRejectionReason = columns.some((c) => c.name === "rejection_reason");
+  const hasRejectionReason = productColumns.some((c) => c.name === "rejection_reason");
   if (!hasRejectionReason) {
     db.run("ALTER TABLE products ADD COLUMN rejection_reason TEXT");
     console.log("🔄 Migration: added rejection_reason column to products");
+  }
+
+  // Migration 2: Add product_title and generated_at columns to posts (content generation module)
+  const postColumns = db
+    .query("PRAGMA table_info(posts)")
+    .all() as { name: string }[];
+  const hasProductTitle = postColumns.some((c) => c.name === "product_title");
+  if (!hasProductTitle) {
+    db.run("ALTER TABLE posts ADD COLUMN product_title TEXT");
+    console.log("🔄 Migration: added product_title column to posts");
+  }
+  const hasGeneratedAt = postColumns.some((c) => c.name === "generated_at");
+  if (!hasGeneratedAt) {
+    db.run("ALTER TABLE posts ADD COLUMN generated_at TEXT");
+    console.log("🔄 Migration: added generated_at column to posts");
   }
 }
 

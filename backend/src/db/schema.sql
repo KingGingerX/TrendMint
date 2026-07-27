@@ -19,10 +19,12 @@ CREATE TABLE IF NOT EXISTS products (
 CREATE TABLE IF NOT EXISTS posts (
   id TEXT PRIMARY KEY,
   product_id TEXT REFERENCES products(id),
+  product_title TEXT,
   platform TEXT DEFAULT 'twitter',
   content TEXT,
   tweet_id TEXT,
   posted_at TEXT,
+  generated_at TEXT,
   status TEXT DEFAULT 'pending'
 );
 
