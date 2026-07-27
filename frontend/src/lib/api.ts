@@ -150,6 +150,7 @@ export interface ContentPost {
   generated_at: string | null;
   posted_at: string | null;
   tweet_id?: string | null;
+  click_count?: number;
 }
 
 export interface ContentResponse {
@@ -266,4 +267,95 @@ export function getAutoPostStatus(): Promise<AutoPostStatus> {
 
 export function verifyCredentials(): Promise<VerifyResult> {
   return apiFetch.get<VerifyResult>("/api/scheduler/verify");
+}
+
+// ─── Stats (combined overview) ─────────────────────────────
+
+export interface StatsOverview {
+  products_discovered: number;
+  products_approved: number;
+  drafts_ready: number;
+  posts_today: number;
+  posts_total: number;
+  clicks_today: number;
+  clicks_total: number;
+  earnings_total: number;
+  earnings_this_month: number;
+}
+
+export function getOverviewStats(): Promise<StatsOverview> {
+  return apiFetch.get<StatsOverview>("/api/stats");
+}
+
+// ─── Clicks ────────────────────────────────────────────────
+
+export interface ClicksStats {
+  clicks_total: number;
+  clicks_today: number;
+  clicks_per_post: {
+    post_id: string;
+    product_title: string;
+    click_count: number;
+    last_clicked_at: string | null;
+  }[];
+}
+
+export function getClicksStats(): Promise<ClicksStats> {
+  return apiFetch.get<ClicksStats>("/api/stats/clicks");
+}
+
+// ─── Earnings ──────────────────────────────────────────────
+
+export interface EarningsEntry {
+  id: string;
+  amount: number;
+  currency: string;
+  source: string;
+  description: string | null;
+  recorded_at: string;
+  period_start: string | null;
+  period_end: string | null;
+}
+
+export interface EarningsListResponse {
+  entries: EarningsEntry[];
+  total: number;
+  limit: number;
+  offset: number;
+}
+
+export interface EarningsSummary {
+  total: number;
+  thisMonth: number;
+  bySource: { source: string; total: number; count: number }[];
+  byMonth: { month: string; total: number; count: number }[];
+}
+
+export function getEarnings(params?: {
+  source?: string;
+  limit?: number;
+  offset?: number;
+}): Promise<EarningsListResponse> {
+  const sp = new URLSearchParams();
+  if (params?.source) sp.set("source", params.source);
+  if (params?.limit !== undefined) sp.set("limit", String(params.limit));
+  if (params?.offset !== undefined) sp.set("offset", String(params.offset));
+  const qs = sp.toString();
+  return apiFetch.get<EarningsListResponse>(`/api/earnings${qs ? "?" + qs : ""}`);
+}
+
+export function getEarningsSummary(): Promise<EarningsSummary> {
+  return apiFetch.get<EarningsSummary>("/api/earnings/summary");
+}
+
+export function addEarnings(entry: {
+  amount: number;
+  source: string;
+  currency?: string;
+  description?: string;
+  recorded_at?: string;
+  period_start?: string;
+  period_end?: string;
+}): Promise<{ success: boolean; entry: EarningsEntry }> {
+  return apiFetch.post("/api/earnings", entry);
 }

@@ -6,6 +6,7 @@ import {
   getStats,
   getContent,
   getQueue,
+  getOverviewStats,
   triggerDiscoveryScan,
   lookupProducts,
   generateContent,
@@ -15,6 +16,7 @@ import {
   type SchedulerStats,
   type ContentResponse,
   type QueueResponse,
+  type StatsOverview,
 } from "../lib/api";
 
 type LoadingAction = "scan" | "lookup" | "generate" | "post" | null;
@@ -27,23 +29,26 @@ export function Dashboard() {
   const [schedulerStats, setSchedulerStats] = useState<SchedulerStats | null>(null);
   const [content, setContent] = useState<ContentResponse | null>(null);
   const [queue, setQueue] = useState<QueueResponse | null>(null);
+  const [overview, setOverview] = useState<StatsOverview | null>(null);
   const [loading, setLoading] = useState<LoadingAction>(null);
   const [error, setError] = useState<string | null>(null);
 
   const fetchAll = useCallback(async () => {
     try {
-      const [d, p, s, c, q] = await Promise.all([
+      const [d, p, s, c, q, o] = await Promise.all([
         getDiscoveryStatus(),
         getProducts({ limit: 5 }),
         getStats(),
         getContent({ limit: 5 }),
         getQueue(),
+        getOverviewStats(),
       ]);
       setDiscovery(d);
       setProducts(p);
       setSchedulerStats(s);
       setContent(c);
       setQueue(q);
+      setOverview(o);
       setError(null);
     } catch (err) {
       setError("Cannot connect to backend");
@@ -78,6 +83,9 @@ export function Dashboard() {
   const productsApproved = products?.counts?.approved ?? 0;
   const draftsReady = schedulerStats?.totalDrafts ?? 0;
   const postsToday = schedulerStats?.postsToday ?? 0;
+  const clicksToday = overview?.clicks_today ?? 0;
+  const clicksTotal = overview?.clicks_total ?? 0;
+  const earningsTotal = overview?.earnings_total ?? 0;
 
   // Recent activity: combine posted + drafted content, sorted by date
   const recentPosts = (content?.posts ?? [])
@@ -109,11 +117,21 @@ export function Dashboard() {
       <h2 className="text-2xl font-semibold mb-6">Dashboard</h2>
 
       {/* Stats cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
         <StatCard label="Products Discovered" value={productsDiscovered} />
         <StatCard label="Products Approved" value={productsApproved} color="emerald" />
         <StatCard label="Drafts Ready" value={draftsReady} color="yellow" />
         <StatCard label="Posts Today" value={postsToday} color="purple" />
+        <StatCard
+          label="Clicks Today / Total"
+          value={`${clicksToday} / ${clicksTotal}`}
+          color="blue"
+        />
+        <StatCard
+          label="Earnings ($)"
+          value={`${earningsTotal.toFixed(2)}`}
+          color="emerald"
+        />
       </div>
 
       {/* Quick actions */}
@@ -209,7 +227,7 @@ function StatCard({
 }: {
   label: string;
   value: number | string;
-  color?: "default" | "emerald" | "yellow" | "purple";
+  color?: "default" | "emerald" | "yellow" | "purple" | "blue";
 }) {
   const colorClass =
     color === "emerald"
@@ -218,6 +236,8 @@ function StatCard({
       ? "text-yellow-400"
       : color === "purple"
       ? "text-purple-400"
+      : color === "blue"
+      ? "text-blue-400"
       : "text-white";
   return (
     <div className="bg-gray-900 border border-gray-800 rounded-xl p-5">

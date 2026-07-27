@@ -6,6 +6,7 @@ const navItems = [
   { to: "/", label: "Dashboard", icon: "📊" },
   { to: "/products", label: "Product Queue", icon: "📦" },
   { to: "/posts", label: "Post History", icon: "📝" },
+  { to: "/earnings", label: "Earnings", icon: "💰" },
   { to: "/settings", label: "Settings", icon: "⚙️" },
 ];
 

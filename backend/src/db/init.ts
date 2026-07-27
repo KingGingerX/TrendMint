@@ -59,6 +59,74 @@ function runMigrations(db: Database): void {
     db.run("ALTER TABLE posts ADD COLUMN generated_at TEXT");
     console.log("🔄 Migration: added generated_at column to posts");
   }
+
+  // Migration 3: Add click tracking columns (click-earnings feature)
+  const hasClickCount = postColumns.some((c) => c.name === "click_count");
+  if (!hasClickCount) {
+    db.run("ALTER TABLE posts ADD COLUMN click_count INTEGER DEFAULT 0");
+    console.log("🔄 Migration: added click_count column to posts");
+  }
+  const hasLastClickedAt = postColumns.some((c) => c.name === "last_clicked_at");
+  if (!hasLastClickedAt) {
+    db.run("ALTER TABLE posts ADD COLUMN last_clicked_at TEXT");
+    console.log("🔄 Migration: added last_clicked_at column to posts");
+  }
+
+  // Migration 4: Backfill existing drafts with redirect URLs
+  // Runs once — replaces raw amazon.com/dp/ links with /r/:postId redirect URLs
+  const backfillDone = db
+    .query("SELECT value FROM settings WHERE key = ?")
+    .get("backfill_redirect_urls_v1") as { value: string } | undefined;
+
+  if (!backfillDone) {
+    // Dynamic import for config (ESM-compatible)
+    // We inline the BASE_URL config reading since this runs at module load time
+    const baseUrl = process.env.BASE_URL || "http://localhost:3001";
+
+    // Find drafts that contain raw Amazon affiliate links
+    const drafts = db
+      .query(
+        `SELECT p.id, p.content, pr.affiliate_link
+         FROM posts p
+         JOIN products pr ON pr.id = p.product_id
+         WHERE p.status = 'draft'
+           AND p.content LIKE '%amazon.com/dp/%'`,
+      )
+      .all() as { id: string; content: string; affiliate_link: string }[];
+
+    let backfilled = 0;
+    for (const draft of drafts) {
+      // Replace the raw affiliate link with the redirect URL
+      const redirectUrl = `${baseUrl}/r/${draft.id}`;
+      // Escape special regex chars in the affiliate link for safe replacement
+      const escapedLink = draft.affiliate_link.replace(
+        /[.*+?^${}()|[\]\\]/g,
+        "\\$&",
+      );
+      const newContent = draft.content.replace(
+        new RegExp(escapedLink, "g"),
+        redirectUrl,
+      );
+
+      if (newContent !== draft.content) {
+        db.query("UPDATE posts SET content = ? WHERE id = ?").run(
+          newContent,
+          draft.id,
+        );
+        backfilled++;
+      }
+    }
+
+    db.run(
+      "INSERT INTO settings (key, value) VALUES ('backfill_redirect_urls_v1', ?) ON CONFLICT(key) DO UPDATE SET value = ?",
+      ["done", "done"],
+    );
+    if (backfilled > 0) {
+      console.log(
+        `🔄 Migration: backfilled ${backfilled} draft(s) with redirect URLs`,
+      );
+    }
+  }
 }
 
 // Run directly: bun run src/db/init.ts

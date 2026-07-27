@@ -3,6 +3,7 @@ import { Sidebar } from "./components/Sidebar";
 import { Dashboard } from "./pages/Dashboard";
 import { ProductQueue } from "./pages/ProductQueue";
 import { PostHistory } from "./pages/PostHistory";
+import { Earnings } from "./pages/Earnings";
 import { Settings } from "./pages/Settings";
 
 export default function App() {
@@ -14,6 +15,7 @@ export default function App() {
           <Route path="/" element={<Dashboard />} />
           <Route path="/products" element={<ProductQueue />} />
           <Route path="/posts" element={<PostHistory />} />
+          <Route path="/earnings" element={<Earnings />} />
           <Route path="/settings" element={<Settings />} />
         </Routes>
       </main>

@@ -10,6 +10,7 @@
 
 import { Database } from "bun:sqlite";
 import { getDb } from "../../db/init";
+import { config } from "../../config";
 import { generateTweet, generateTweetsBatch, ProductForGeneration } from "./generator";
 
 export interface GenerateRequest {
@@ -53,6 +54,7 @@ function productRowToGeneration(row: Record<string, unknown>): ProductForGenerat
 
 /**
  * Store a generated tweet in the posts table.
+ * Returns the new post ID.
  */
 function storePost(
   db: Database,
@@ -110,7 +112,17 @@ async function generateForProduct(
     return { success: false, error: "No tweet generated", tokensUsed: 0 };
   }
 
-  storePost(db, productId, product.title as string, result.tweet.text);
+  const postId = storePost(db, productId, product.title as string, result.tweet.text);
+
+  // Replace {{AFFILIATE_LINK}} placeholder with tracked redirect URL
+  const redirectUrl = `${config.BASE_URL}/r/${postId}`;
+  const finalContent = result.tweet.text.replace(
+    /\{\{AFFILIATE_LINK\}\}/gi,
+    redirectUrl,
+  );
+
+  // Update post with final content containing the redirect URL
+  db.query("UPDATE posts SET content = ? WHERE id = ?").run(finalContent, postId);
 
   return {
     success: true,

@@ -29,4 +29,7 @@ export const config = {
   // ClickBank (optional)
   CLICKBANK_DEV_KEY: env.CLICKBANK_DEV_KEY || "",
   CLICKBANK_CLERK_KEY: env.CLICKBANK_CLERK_KEY || "",
-} as const;
+
+  // Redirect base URL for click tracking
+  BASE_URL: env.BASE_URL || "http://localhost:3001",
+  } as const;

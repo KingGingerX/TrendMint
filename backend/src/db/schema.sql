@@ -32,3 +32,14 @@ CREATE TABLE IF NOT EXISTS settings (
   key TEXT PRIMARY KEY,
   value TEXT
 );
+
+CREATE TABLE IF NOT EXISTS earnings (
+  id TEXT PRIMARY KEY,
+  amount REAL NOT NULL,
+  currency TEXT DEFAULT 'USD',
+  source TEXT NOT NULL,
+  description TEXT,
+  recorded_at TEXT DEFAULT (datetime('now')),
+  period_start TEXT,
+  period_end TEXT
+);
