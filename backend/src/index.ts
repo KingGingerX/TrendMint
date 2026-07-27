@@ -5,6 +5,7 @@ import { discoveryRouter } from "./modules/discovery/router";
 import { productsRouter } from "./modules/products/router";
 import { contentRouter } from "./modules/content/router";
 import { schedulerRouter } from "./modules/scheduler/router";
+import { startAutoPoster } from "./modules/scheduler/auto-poster";
 
 const app = new Hono();
 
@@ -35,3 +36,6 @@ const server = Bun.serve({
 });
 
 console.log(`🚀 TrendMint backend running on http://localhost:${server.port}`);
+
+// Start auto-poster if enabled
+startAutoPoster();
