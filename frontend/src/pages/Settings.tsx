@@ -169,6 +169,31 @@ export function Settings() {
           </p>
         </div>
 
+        {/* Redirect URL */}
+        <div className="bg-gray-900 border border-gray-800 rounded-xl p-6">
+          <h3 className="text-lg font-medium mb-4">Click Tracking</h3>
+          <p className="text-sm text-gray-400 mb-4">
+            Tweet links use TrendMint redirect URLs for click tracking.
+            Each post gets a unique redirect URL that logs a click before
+            forwarding to the affiliate link.
+          </p>
+          <div>
+            <label className="text-sm text-gray-500 block mb-1">
+              Base Redirect URL
+            </label>
+            <div className="bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-gray-200 font-mono text-sm">
+              {window.location.origin.includes("localhost")
+                ? "http://localhost:3001/r/:postId"
+                : `${window.location.protocol}//${window.location.hostname}:3001/r/:postId`}
+            </div>
+          </div>
+          <p className="text-xs text-gray-600 mt-3">
+            Set <code className="text-gray-500">BASE_URL</code> in{" "}
+            <code className="text-gray-500">.env</code> to change the redirect
+            base (default: http://localhost:3001).
+          </p>
+        </div>
+
         {/* Auto-Poster */}
         <div className="bg-gray-900 border border-gray-800 rounded-xl p-6">
           <h3 className="text-lg font-medium mb-4">Auto-Poster</h3>

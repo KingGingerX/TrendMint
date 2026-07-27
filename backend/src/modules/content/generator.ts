@@ -133,12 +133,15 @@ export async function generateTweet(
 
   const rawContent = result.response.content;
 
-  // Replace placeholder with actual affiliate link
-  const tweetText = rawContent.replace(/\{\{AFFILIATE_LINK\}\}/gi, product.affiliate_link);
+  // Keep {{AFFILIATE_LINK}} placeholder — the service layer will replace it
+  // with a tracked redirect URL after obtaining the post ID.
+  const tweetText = rawContent;
 
   // Validation
   const characterCount = tweetText.length;
-  const hasAffiliateLink = tweetText.includes(product.affiliate_link);
+  const hasAffiliateLink =
+    /\{\{AFFILIATE_LINK\}\}/i.test(tweetText) ||
+    tweetText.includes(product.affiliate_link!);
   const hasDisclosure = /#ad\b/i.test(tweetText);
 
   const tweet: GeneratedTweet = {

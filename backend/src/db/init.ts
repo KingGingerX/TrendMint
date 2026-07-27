@@ -59,6 +59,18 @@ function runMigrations(db: Database): void {
     db.run("ALTER TABLE posts ADD COLUMN generated_at TEXT");
     console.log("🔄 Migration: added generated_at column to posts");
   }
+
+  // Migration 3: Add click tracking columns (click-earnings feature)
+  const hasClickCount = postColumns.some((c) => c.name === "click_count");
+  if (!hasClickCount) {
+    db.run("ALTER TABLE posts ADD COLUMN click_count INTEGER DEFAULT 0");
+    console.log("🔄 Migration: added click_count column to posts");
+  }
+  const hasLastClickedAt = postColumns.some((c) => c.name === "last_clicked_at");
+  if (!hasLastClickedAt) {
+    db.run("ALTER TABLE posts ADD COLUMN last_clicked_at TEXT");
+    console.log("🔄 Migration: added last_clicked_at column to posts");
+  }
 }
 
 // Run directly: bun run src/db/init.ts

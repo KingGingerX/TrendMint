@@ -90,6 +90,7 @@ export function PostHistory() {
                 <th className="px-4 py-3 font-medium">Tweet</th>
                 <th className="px-4 py-3 font-medium">Product</th>
                 <th className="px-4 py-3 font-medium">Status</th>
+                <th className="px-4 py-3 font-medium">Clicks</th>
                 <th className="px-4 py-3 font-medium">Posted At</th>
                 <th className="px-4 py-3 font-medium">Tweet Link</th>
               </tr>
@@ -110,6 +111,9 @@ export function PostHistory() {
                   </td>
                   <td className="px-4 py-3">
                     <PostStatusBadge status={post.status} />
+                  </td>
+                  <td className="px-4 py-3 text-gray-400 text-center">
+                    {post.click_count ?? 0}
                   </td>
                   <td className="px-4 py-3 text-gray-500">
                     {post.posted_at
