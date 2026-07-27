@@ -12,7 +12,8 @@ CREATE TABLE IF NOT EXISTS products (
   affiliate_link TEXT,
   source TEXT,          -- 'reddit', 'clickbank', etc.
   discovered_at TEXT,
-  status TEXT DEFAULT 'pending' -- pending, approved, posted, rejected
+  status TEXT DEFAULT 'discovered', -- discovered, approved, posted, rejected
+  rejection_reason TEXT
 );
 
 CREATE TABLE IF NOT EXISTS posts (
