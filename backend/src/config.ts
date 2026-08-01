@@ -23,8 +23,8 @@ export const config = {
   REDDIT_CLIENT_ID: env.REDDIT_CLIENT_ID || "",
   REDDIT_CLIENT_SECRET: env.REDDIT_CLIENT_SECRET || "",
 
-  // OpenAI
-  OPENAI_API_KEY: env.OPENAI_API_KEY || "",
+  // Anthropic
+  ANTHROPIC_API_KEY: env.ANTHROPIC_API_KEY || "",
 
   // ClickBank (optional)
   CLICKBANK_DEV_KEY: env.CLICKBANK_DEV_KEY || "",

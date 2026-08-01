@@ -25,6 +25,9 @@ export interface GenerateResponse {
   failed: number;
   errors: string[];
   totalTokensUsed: number;
+  inputTokensUsed: number;
+  outputTokensUsed: number;
+  estimatedCost: number;
 }
 
 export interface ContentListItem {

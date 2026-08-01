@@ -129,9 +129,9 @@ export function Settings() {
                 }
               />
               <SettingRow
-                label="OpenAI"
+                label="Anthropic"
                 configured={false}
-                note="Check OPENAI_API_KEY"
+                note="Check ANTHROPIC_API_KEY"
               />
               <SettingRow
                 label="ClickBank"
