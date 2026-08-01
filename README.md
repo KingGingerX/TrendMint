@@ -11,7 +11,7 @@ trendmint/
 │       ├── modules/
 │       │   ├── discovery/   Reddit product discovery
 │       │   ├── products/    Amazon PAAPI + ClickBank lookups
-│       │   ├── content/     OpenAI content generation
+│       │   ├── content/     Anthropic content generation
 │       │   └── scheduler/   Twitter/X posting queue
 │       └── db/             SQLite schema & helpers
 ├── frontend/         React + Vite + TypeScript dashboard

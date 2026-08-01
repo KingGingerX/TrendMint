@@ -1,5 +1,5 @@
 /**
- * Content router — OpenAI-powered tweet generation endpoints.
+ * Content router — Anthropic-powered tweet generation endpoints.
  *
  * Endpoints:
  *   POST /api/content/generate  — generate tweet(s) for product(s)
@@ -50,7 +50,9 @@ contentRouter.post("/generate", async (c) => {
     return c.json(
       {
         ...result,
-        estimatedCost: `$${(result.totalTokensUsed * 0.00000007).toFixed(6)}`,
+        // Anthropic: approximately $0.25/1M input and $1.25/1M output.
+        // The service exposes combined usage, so use the conservative output rate.
+        estimatedCost: `${(result.totalTokensUsed * 0.00000125).toFixed(6)}`,
       },
       statusCode,
     );

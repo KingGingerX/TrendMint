@@ -1,5 +1,5 @@
 /**
- * Tweet generator — takes a product and creates engaging tweet copy via OpenAI.
+ * Tweet generator — takes a product and creates engaging tweet copy via Anthropic.
  *
  * Validates every output:
  *   - Character count ≤ 280
@@ -7,7 +7,7 @@
  *   - FTC disclosure (#ad) is present
  */
 
-import { getOpenAIClient, OpenAIResponse } from "./openai-client";
+import { getAnthropicClient } from "./anthropic-client";
 
 /** Input product shape (subset of DB columns used for generation). */
 export interface ProductForGeneration {
@@ -90,12 +90,12 @@ function buildUserPrompt(product: ProductForGeneration): string {
 export async function generateTweet(
   product: ProductForGeneration,
 ): Promise<{ tweet?: GeneratedTweet; error?: GenerationError }> {
-  const client = getOpenAIClient();
+  const client = getAnthropicClient();
 
   if (!client.isConfigured()) {
     return {
       error: {
-        error: "OPENAI_API_KEY is not configured",
+        error: "ANTHROPIC_API_KEY is not configured",
         productTitle: product.title,
       },
     };
@@ -113,19 +113,14 @@ export async function generateTweet(
   const systemPrompt = buildSystemPrompt();
   const userPrompt = buildUserPrompt(product);
 
-  const result = await client.chatCompletion({
-    messages: [
-      { role: "system", content: systemPrompt },
-      { role: "user", content: userPrompt },
-    ],
-    temperature: 0.9,
-    max_tokens: 150,
+  const result = await client.generateChatCompletion(systemPrompt, userPrompt, {
+    max_tokens: 200,
   });
 
   if (result.error || !result.response) {
     return {
       error: {
-        error: result.error?.error ?? "Unknown OpenAI error",
+        error: result.error?.error ?? "Unknown Anthropic error",
         productTitle: product.title,
       },
     };
@@ -177,7 +172,7 @@ export async function generateTweet(
 
 /**
  * Generate tweets for multiple products in parallel.
- * Respects a concurrency limit to avoid rate-limiting OpenAI.
+ * Respects a concurrency limit to avoid rate-limiting Anthropic.
  */
 export async function generateTweetsBatch(
   products: ProductForGeneration[],
